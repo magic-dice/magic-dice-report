@@ -1,7 +1,7 @@
 
 import * as steem from 'steem';
 
-const Account = 'magicdice1';
+const Account = 'magicdice';
 
 export class DiceData {
 

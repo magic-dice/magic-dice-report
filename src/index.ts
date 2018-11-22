@@ -11,8 +11,12 @@ const optionDefinitions = [
 ]
 
 const options = commandLineArgs(optionDefinitions);
-
 options.end_block = options.end_block || Infinity;
+
+// const options = {
+//   start_block: 27891709,
+//   end_block: Infinity
+// };
 
 if (!options.start_block ) {
   console.log(`Missing arguments. Usage: --start_block blockNumber --end_block blockNumber`);
