@@ -1,7 +1,7 @@
 
 import * as steem from 'steem';
-
 const Account = 'magicdice';
+import * as crypto from 'crypto';
 
 export class DiceData {
 
@@ -69,11 +69,13 @@ export class DiceData {
                            .filter(trx => trx.block >= this.options.start_block && trx.block <= this.options.end_block);
 
     let seeds = postedSeeds.map(seed => {
-      let hashIndex = postedHash.findIndex(hash => hash.serverSeedHash === seed.refServerSeedHash);
+
+      let hash = crypto.createHash('sha256').update(seed.serverSeed).digest('hex');
+      let hashIndex = postedHash.findIndex(h => h.serverSeedHash === hash);
 
       return {
-        startBlock: hashIndex >= 0 ? postedHash[hashIndex].block + 1 : -1,
-        endBlock: hashIndex >= 0 && hashIndex + 1 < postedHash.length ? postedHash[hashIndex + 1].block : seed.block,
+        startBlock: hashIndex >= 0 ? postedHash[hashIndex].block + 1 : Infinity,
+        endBlock: hashIndex >= 0 && hashIndex + 1 < postedHash.length ? postedHash[hashIndex + 1].block : -1,
         seed: seed.serverSeed,
         hash: seed.refServerSeedHash
       };
@@ -87,6 +89,7 @@ export class DiceData {
     return transferHistory.filter(trx => trx.op[0] === 'transfer'
                                   && trx.op[1].to === Account
                                   && trx.op[1].from !== Account
+                                  && trx.op[1].memo && trx.op[1].memo.length > 0
                                   && trx.block >= this.options.start_block && trx.block <= this.options.end_block)
                           .map(trx => ({
                             transactionId: trx.trx_id,
@@ -101,7 +104,7 @@ export class DiceData {
                                   && trx.op[1].to !== Account
                                   && trx.op[1].from === Account
                                   && trx.block >= this.options.start_block && trx.block <= this.options.end_block
-                                  && trx.op[1].memo.includes('isValid'))
+                                  && trx.op[1].memo && trx.op[1].memo.includes('isValid'))
                           .map(trx => ({
                             transactionId: trx.trx_id,
                             block: trx.block,

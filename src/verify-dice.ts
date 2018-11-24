@@ -13,7 +13,7 @@ class VerifyDice {
 
       let bet = diceData.placedBets.find(bet => bet.transactionId === roll.refTransactionId);
       if (bet && roll.isValid) {
-          let serverSeed = diceData.seeds.find(s => s.hash === roll.serverSeedHash);
+          let serverSeed = diceData.seeds.find(s => bet.block >= s.startBlock && bet.block <= s.endBlock);
 
           if(!serverSeed || !serverSeed.seed) {
             missingSeedRolls.push(roll);
